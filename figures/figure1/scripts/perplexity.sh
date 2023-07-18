@@ -1,0 +1,1 @@
+$ORCH_DIR/sh/compare_perplexity.sh $ORCH_DIR/orchard_experiments/figures/figure1/data orchard_k1_f20 orchard_k10_f20 pairtree calder

@@ -1,0 +1,17 @@
+################
+# INSTRUCTIONS #
+################
+
+These are the instructions for producing Figure 4 from the Orchard manuscript.
+
+(1) Make sure that the ORCH_DIR environment variable is set
+ORCH_DIR=/path/to/orchard 
+
+(2) Run Orchard (k=10)
+$ORCH_DIR/orchard_experiments/figures/figure4/scripts/orchard_k10.sh
+
+(3) Run Pairtree
+$ORCH_DIR/orchard_experiments/figures/figure4/scripts/pairtree.sh
+
+---- More directions coming soon ----
+

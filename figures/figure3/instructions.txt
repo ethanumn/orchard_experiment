@@ -1,0 +1,29 @@
+################
+# INSTRUCTIONS #
+################
+
+These are the instructions for producing Figure 3 from the Orchard manuscript.
+
+(1) Make sure that the ORCH_DIR environment variable is set
+ORCH_DIR=/path/to/orchard 
+
+(2) Make sure Pairtree is installed, since we use it to compute a maximum a posteriori cellular prevalence matrix for the real bulk data 
+cd $ORCH_DIR/lib
+git clone https://github.com/morrislab/pairtree.git
+cd $ORCH_DIR/lib/pairtree
+virtualenv env
+python -m pip install -r requirements.txt
+cd $ORCH_DIR
+
+(3) Make MAP cellular prevalences
+$ORCH_DIR/orchard_experiments/figures/scripts/compute_MAP_F.sh $ORCH_DIR/figures/figure3/data 
+
+(4) Run Orchard (k=10)
+$ORCH_DIR/orchard_experiments/figures/figure3/scripts/orchard_k10.sh
+
+(5) Run Pairtree
+$ORCH_DIR/orchard_experiments/figures/figure3/scripts/pairtree.sh
+
+(6) Compute perplexity
+$ORCH_DIR/orchard_experiments/figures/figure3/scripts/perplexity.sh
+

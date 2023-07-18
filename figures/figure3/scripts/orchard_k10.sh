@@ -1,0 +1,1 @@
+$ORCH_DIR/sh/run_orchard.sh $ORCH_DIR/orchard_experiments/figures/figure3/data orchard_k10_f20 32 10 20 intruthdir

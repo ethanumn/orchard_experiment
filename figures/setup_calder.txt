@@ -1,0 +1,114 @@
+
+# Guide for setting up CALDER for benchmarking
+
+
+Unfortunately, CALDER can be difficult to setup and run. 
+
+We provide here a quick guide on how to install the dependencies needed for CALDER,
+and how to run a script using CALDER. This information is not very well documented.
+
+(1) Clone the CALDER repository
+---------------------------------
+```
+cd $ORCH_DIR/lib
+git clone https://github.com/raphael-group/calder.git
+```
+
+(2) Install GLPK for Java
+--------------------------
+
+CALDER requires a linear programming (LP) solver to perform its computations. The CALDER documentation recommends 
+using gurobi (https://gurobi.com), however, the JAR provided in the CALDER repository assumes you can install 
+gurobi 8.0.1, which is deprecated and no longer supported. 
+
+The alternative LP solvers that CALDER can use are GLPK for Java, and lp-solve. Although lp-solve is very easy to set 
+up, it's extraodinarily slow. As a result, it's necessary to use GLPK for Java.
+
+In order to install GLPK for Java, we must first set an environmental variable JAVA_HOME in the terminal. In many cases,
+this environmental variable has not been set. We can determine what to set this environmental variable to by typing in the 
+following command into the terminal 
+
+```
+readlink -f $(which java)
+```
+
+You may obtain a printout like
+
+```
+/usr/lib/jvm/java-11-openjdk-amd64/bin/java
+```
+
+The JAVA_HOME environmental variable should be set to the absolute path leading up to the `/bin` folder. For our example 
+path we would set the JAVA_HOME variable as follows: 
+
+```
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+```
+
+This line can be put into your `.bashrc` or equivalent as well. 
+
+Next, we can download a locally buildable version of GLPK for Java as follows:
+
+```
+# make a directory for the GLPK source 
+cd $ORCH_DIR/lib/calder 
+mkdir glpk_src && cd glpk_src 
+
+# get the tar files to build GLPK from source 
+wget https://ftp.gnu.org/gnu/glpk/glpk-5.0.tar.gz
+tar -xzf glpk-5.0.tar.gz
+
+# get the tar files to build the Java wrapper for GLPK
+wget http://download.sourceforge.net/project/glpk-java/\
+glpk-java/glpk-java-1.12.0/libglpk-java-1.12.0.tar.gz
+tar -xzf libglpk-java-1.12.0.tar.gz
+
+# Build and install GLPK
+cd $ORCH_DIR/lib/calder/glpk_src/glpk-5.0
+./configure --prefix=$ORCH_DIR/lib/calder/glpk
+make -j6
+make check
+make install
+
+# Build and install GLPK for Java
+cd $ORCH_DIR/lib/calder/glpk_src/libglpk-java-1.12.0
+export CPPFLAGS=-I$ORCH_DIR/lib/calder/glpk/include
+export SWIGFLAGS=-I$ORCH_DIR/lib/calder/glpk/include
+export LD_LIBRARY_PATH=$ORCH_DIR/lib/calder/glpk/lib
+./configure --prefix=$ORCH_DIR/lib/calder/glpk
+make
+make check
+make install
+unset CPPFLAGS
+unset SWIGFLAGS
+```
+
+(3) Test the installation 
+--------------------------
+
+Now, you should be able to run CALDER using the example data as follows:
+
+```
+cd $ORCH_DIR/lib/calder
+java -Djava.library.path=$LIB_DIR/calder/glpk/lib/jni \
+     -classpath $LIB_DIR/calder/glpk/share/java/glpk-java-1.12.0.jar \
+     -jar calder.jar -i calder_input.csv -o output -v glpk
+```
+
+(4) Using Gurobi
+-------------------
+
+Alternatively, you can use Gurobi, however, only version 8.0.0 and version 8.0.1 are compatible with the CALDER jar. Unfortunately, Gurobi 8 is no longer supported and isn't easily accessible via the Gurobi websites. Instead, there are Gurobi 8.0 install links that are hidden from the public, but usable. You can use the directions provided with the installation to install Gurobi on a machine that's on an academic network. You can install Gurobi 8.0.0 as follows:
+
+```
+wget https://packages.gurobi.com/8.0/gurobi8.0.0_linux64.tar.gz
+```
+
+Or alternatively Gurobi 8.0.1
+
+```
+wget https://packages.gurobi.com/8.0/gurobi8.0.1_linux64.tar.gz
+```
+
+These tar files contain the directions for installing Gurobi on your system.
+

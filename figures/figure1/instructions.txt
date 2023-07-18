@@ -1,0 +1,29 @@
+################
+# INSTRUCTIONS #
+################
+
+These are the instructions for producing Figure 1 from the Orchard manuscript.
+
+(1) Make sure that the ORCH_DIR environment variable is set
+ORCH_DIR=/path/to/orchard 
+
+(2) Make ground-truth data files
+$ORCH_DIR/orchard_experiments/figures/scripts/sim_to_neutree.sh $ORCH_DIR/orchard_experiments/figures/figure1/data 
+
+(3) Run Orchard (k=1)
+$ORCH_DIR/orchard_experiments/figures/figure1/scripts/orchard_k1.sh
+
+(4) Run Orchard (k=10)
+$ORCH_DIR/orchard_experiments/figures/figure1/scripts/orchard_k10.sh
+
+(5) Run Pairtree
+$ORCH_DIR/orchard_experiments/figures/figure1/scripts/pairtree.sh
+
+(6) Run CALDER
+$ORCH_DIR/orchard_experiments/figures/figure1/scripts/calder.sh
+
+(7) Compute perplexity
+$ORCH_DIR/orchard_experiments/figures/figure1/scripts/perplexity.sh
+
+(8) Compute relationship reconstruction loss
+$ORCH_DIR/orchard_experiments/figures/figure1/scripts/rrl.sh
