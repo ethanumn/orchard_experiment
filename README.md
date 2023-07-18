@@ -82,7 +82,7 @@ where $r$ is a particular pairwise evolutionary relationship and $r \in (ancestr
 Finally, we can compute the difference in the pairwise evolutionary relationships for the reconstructed tree $E_{uv}$ and the ground truth evolutionary relationships from the ground truth trees $\tilde{E}_{uv}$ using the Jensen Shannon divergence
 
 $$
-    \epsilon_{R}= \frac{2}{n(n+1)}\sum{JSD(E_{uv}|| \tilde{E}_{uv})}
+    \epsilon_{R}= \frac{2}{n(n+1)}\sum_{u,v}{JSD(E_{uv}|| \tilde{E}_{uv})}
 $$
 
 where $JSD$ is the [Jensen-Shannon Divergence](https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence).
