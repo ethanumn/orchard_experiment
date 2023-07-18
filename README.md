@@ -35,7 +35,7 @@ We use (3) different metrics to evaluate bulk DNA cancer phylogeny reconstructio
 
 ### (1) *Perplexity*
 
-Formally, we measure a reconstructed tree using the perplexity of cellular prevalence matrix $F$ fit to the tree $$t$$ under a binomial likelihood model. 
+Formally, we measure a reconstructed tree using the perplexity of cellular prevalence matrix $F$ fit to the tree $t$ under a binomial likelihood model. 
 
 Let $D$ be the bulk DNA read count data, $t$ be a phylogenetic tree reconstructed by an algorithm, and $F$ be the cellular prevalence matrix fit to the tree $t$. We define the perplexity of a probability model
 
