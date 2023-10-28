@@ -8,7 +8,7 @@ import os, sys, argparse, re
 import numpy as np
 from omicsdata.ssm import parse, supervariants, columns
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "metric"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "metrics"))
 
 import neutree
 
@@ -56,11 +56,11 @@ def read_next_matrix(f):
 			break
 
 	# get columns for matrix
-	column_labels = next(F).strip().split(',')
+	column_labels = next(f).strip().split(',')
 	row_labels = []
 	while True:
 		try:
-			line = next(F).strip()
+			line = next(f).strip()
 		except StopIteration:
 			break
 		if len(line) == 0:
@@ -105,8 +105,8 @@ def read_solution(calder_sol_fn):
 				break
 			data[name] = data_
 			row_labels[name] = row_labels_
-			col_labels[name] = column_labels_
-	return (mats, row_labels, column_labels)
+			column_labels[name] = column_labels_
+	return (data, row_labels, column_labels)
 
 def dot_to_struct(svids, calder_dot_fn):
 	"""
@@ -124,18 +124,15 @@ def dot_to_struct(svids, calder_dot_fn):
 	ndarray
 		a parents vector aka struct
 	"""
-
 	label_map = {} # vertex label to supervariant 'id' map
 	edges = []
-
 	with open(calder_dot_fn) as f:
-    	for line in f.readlines():
-      		line = line.strip()
-
-      		for field, pattern in dot_fields.items():
-        		R = re.search(pattern, line)
-        		if R:
-          			break
+		for line in f.readlines():
+			line = line.strip()
+			for field, pattern in dot_fields.items():
+				R = re.search(pattern, line)
+				if R:
+					break
 			if field == HEADER:
 				continue
 			elif field == LABEL:
@@ -147,12 +144,20 @@ def dot_to_struct(svids, calder_dot_fn):
 			else:
 				raise Exception('Unknown line_type %s' % line_type)
 
-  parents_dict = {label_map[v]: label_map[u] for (u,b) in edges}
-  struct = np.array([vids.index(parents_dict[child]) for child in parents_dict.keys()])
-  assert len(struct) == len(vids) - 1, 
-  return struct
+	parents_dict = {label_map[v]: label_map[u] for (u,v) in edges}
+	n = len(list(label_map.keys()))
+	root = np.setdiff1d(np.arange(1,n), [int(x[1:]) for x in list(parents_dict.keys())])
+	print(root)
+	print(parents_dict)
+	assert len(root) == 1, "incorrect tree structure"
+	struct = np.zeros(n, dtype=int)
+	for c,p in parents_dict.items():
+		struct[svids.index(c)] = svids.index(p)+1
+	assert len(struct) == len(svids), "tree has incorrect number of edges"
+	print(struct)
+	return struct
 
-def calder_to_neutree(params, neutree_fn):
+def calder_to_neutree(params, calder_sol_fn, calder_dot_fn, neutree_fn):
 	"""
 	Translates a set of CALDER output files into a Neutree file
 
@@ -167,16 +172,17 @@ def calder_to_neutree(params, neutree_fn):
 	--------
 	None
 	"""
-	mats, row_headers = read_solution(calder_mats_fn)
-	svids = row_labels[FHAT][1:] # supervariant ids are 
-
-	struct = dot_to_struct(svids, calder_trees_fn)
+	(data, row_labels, column_labels) = read_solution(calder_sol_fn)
+	svids = row_labels[FHAT][1:]
+	clustering = params[columns.PARAMS_Columns.CLUSTERS]
+	clustering.insert(0,[])
+	struct = dot_to_struct(svids, calder_dot_fn)
 	ntree = neutree.Neutree(
 		structs = [struct],
-		phis = [mats[FHAT]],
+		phis = [data[FHAT]],
 		counts = np.array([1]),
 		logscores = np.array([0.]),
-		clusterings = [params[columns.PARAMS_Columns.CLUSTERS]],
+		clusterings = [clustering],
 		garbage = params[columns.PARAMS_Columns.GARBAGE],
 	)
 	neutree.save(ntree, neutree_fn)
@@ -197,7 +203,7 @@ def main():
   args = parser.parse_args()
 
   params = parse.load_params(args.params_fn)
-  calder_to_neutree(params, args.calder_mats_fn, args.calder_trees_fn, args.neutree_fn)
+  calder_to_neutree(params, args.calder_sol_fn, args.calder_dot_fn, args.neutree_fn)
 
 if __name__ == '__main__':
   main()
